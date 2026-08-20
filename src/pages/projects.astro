@@ -367,11 +367,13 @@ const statuses = ['All', ...new Set(site.projects.map((p) => p.status))];
 </style>
 
 <script>
-  const grid = document.getElementById('projects-grid');
-  const chips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
-  const count = document.getElementById('projects-count');
+  let currentFilter = 'All';
 
   const applyFilter = (filter: string) => {
+    currentFilter = filter;
+    const grid = document.getElementById('projects-grid');
+    const chips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
+    const count = document.getElementById('projects-count');
     let visible = 0;
     grid?.querySelectorAll<HTMLElement>('.project-card').forEach((card) => {
       const match = filter === 'All' || card.dataset.status === filter;
@@ -382,7 +384,11 @@ const statuses = ['All', ...new Set(site.projects.map((p) => p.status))];
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === filter)));
   };
 
-  chips.forEach((chip) =>
-    chip.addEventListener('click', () => applyFilter(chip.dataset.filter ?? 'All')),
-  );
+  // Re-init after view-transition swaps (scripts don't re-run on navigation).
+  document.addEventListener('astro:page-load', () => {
+    applyFilter(currentFilter);
+    document.querySelectorAll<HTMLButtonElement>('.filter-chip').forEach((chip) =>
+      chip.addEventListener('click', () => applyFilter(chip.dataset.filter ?? 'All')),
+    );
+  });
 </script>

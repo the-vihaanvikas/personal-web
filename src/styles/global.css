@@ -239,7 +239,7 @@ button {
 .aurora {
   position: absolute;
   inset: -25%;
-  filter: blur(90px);
+  filter: blur(64px);
   transform: translateZ(0);
 }
 

@@ -111,6 +111,14 @@ function initHeader(root: ParentNode = document): void {
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  const toTop = document.querySelector<HTMLElement>('#to-top');
+  if (toTop && !toTop.dataset.toTopInited) {
+    toTop.dataset.toTopInited = 'true';
+    toTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    });
+  }
+
   const burger = header.querySelector<HTMLButtonElement>('#nav-toggle');
   const menu = header.querySelector<HTMLElement>('#nav-menu');
   if (burger && menu) {

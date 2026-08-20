@@ -362,8 +362,10 @@ const socials = socialLinks.map((s) => ({
 
 <script>
   // Live local-time clock for the configured timezone.
-  const clock = document.getElementById('local-clock');
-  if (clock) {
+  const startClock = () => {
+    const clock = document.getElementById('local-clock');
+    if (!clock || clock.dataset.clockInited) return;
+    clock.dataset.clockInited = 'true';
     const tz = clock.dataset.tz ?? '';
     const update = () => {
       const now = new Date();
@@ -388,5 +390,8 @@ const socials = socialLinks.map((s) => ({
     };
     update();
     window.setInterval(update, 1000);
-  }
+  };
+
+  // Re-init after view-transition swaps (scripts don't re-run on navigation).
+  document.addEventListener('astro:page-load', startClock);
 </script>

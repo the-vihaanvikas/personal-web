@@ -244,6 +244,15 @@ const nav = [
     background: var(--glass-bg-2);
   }
 
+  /* Without JS the mobile menu stays open so navigation still works */
+  html:not(.js) .nav-mobile {
+    display: block;
+  }
+
+  html:not(.js) .nav-burger {
+    display: none;
+  }
+
   .nav-mobile.open {
     display: block;
     animation: menu-in 0.35s var(--ease-out) both;

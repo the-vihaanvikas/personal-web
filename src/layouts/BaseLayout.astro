@@ -51,6 +51,11 @@ const pageTitle = `${title} · ${site.name}`;
     <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={serifItalicWoff2} as="font" type="font/woff2" crossorigin />
 
+    <!-- Progressive enhancement marker (CSS uses it to show the mobile nav without JS) -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+
     <!-- Set theme before first paint to avoid flash -->
     <script is:inline>
       (function () {

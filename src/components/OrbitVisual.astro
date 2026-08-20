@@ -1,0 +1,286 @@
+---
+/**
+ * Hero orbital system — a liquid-glass planet on slowly rotating rings,
+ * with drifting satellites and a soft cosmic glow. Pure CSS motion;
+ * the tilt/parallax enhancement is handled by scripts/motion.ts.
+ */
+---
+
+<div class="orbit-stage" data-reveal="scale" style="--d:240ms" aria-hidden="true">
+  <div class="orbit-wrap">
+    <div class="orbit-ring ring-1"></div>
+    <div class="orbit-ring ring-2"></div>
+    <div class="orbit-ring ring-3"></div>
+
+    <div class="orbit-sat sat-1"><span class="sat-dot"></span></div>
+    <div class="orbit-sat sat-2"><span class="sat-dot"></span></div>
+    <div class="orbit-sat sat-3"><span class="sat-dot sat-dot--ring"></span></div>
+
+    <div class="orbit-planet" >
+      <div class="planet-body">
+        <div class="planet-sheen"></div>
+        <div class="planet-band"></div>
+      </div>
+      <div class="planet-glow"></div>
+    </div>
+
+    <span class="spark sp-1">✦</span>
+    <span class="spark sp-2">✦</span>
+    <span class="spark sp-3">✦</span>
+  </div>
+</div>
+
+<style>
+  .orbit-stage {
+    display: grid;
+    place-items: center;
+    perspective: 1100px;
+  }
+
+  .orbit-wrap {
+    position: relative;
+    width: min(430px, 76vw);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    transform: translateY(var(--parallax, 0px));
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  /* rings */
+  .orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid var(--ring);
+    inset: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .ring-1 {
+    inset: 3%;
+    border-style: dashed;
+    animation: ring-spin 90s linear infinite;
+  }
+
+  .ring-2 {
+    inset: 20%;
+    opacity: 0.8;
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    animation: ring-spin 70s linear infinite reverse;
+  }
+
+  .ring-3 {
+    inset: 37%;
+    border-style: dotted;
+    opacity: 0.55;
+    animation: ring-spin 50s linear infinite;
+  }
+
+  @keyframes ring-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* the planet */
+  .orbit-planet {
+    position: relative;
+    width: 34%;
+    aspect-ratio: 1;
+    transform-style: preserve-3d;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .planet-body {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 30%),
+      radial-gradient(circle at 72% 78%, rgba(34, 211, 238, 0.55), transparent 52%),
+      radial-gradient(circle at 30% 40%, #818cf8 0%, #6366f1 42%, #4f46e5 78%),
+      linear-gradient(160deg, #818cf8, #312e81);
+    box-shadow:
+      inset -14px -16px 34px rgba(20, 16, 80, 0.55),
+      inset 6px 8px 18px rgba(255, 255, 255, 0.25);
+    animation: planet-float 9s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .planet-sheen {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.14) 50%, transparent 58%);
+    animation: sheen-sweep 14s linear infinite;
+  }
+
+  @keyframes sheen-sweep {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .planet-band {
+    position: absolute;
+    left: -6%;
+    right: -6%;
+    top: 46%;
+    height: 9%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    filter: blur(2px);
+    transform: rotate(-14deg);
+  }
+
+  .planet-glow {
+    position: absolute;
+    inset: -34%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent) 42%, transparent) 0%,
+      transparent 66%
+    );
+    filter: blur(18px);
+    z-index: -1;
+    animation: glow-pulse 7s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      opacity: 0.75;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.07);
+    }
+  }
+
+  @keyframes planet-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
+  /* satellites */
+  .orbit-sat {
+    position: absolute;
+    inset: 0;
+    animation: ring-spin var(--sat-dur, 40s) linear infinite;
+    pointer-events: none;
+  }
+
+  .sat-1 {
+    --sat-dur: 38s;
+  }
+  .sat-2 {
+    --sat-dur: 61s;
+    animation-direction: reverse;
+  }
+  .sat-3 {
+    --sat-dur: 27s;
+  }
+
+  .sat-dot {
+    position: absolute;
+    top: 3.5%;
+    left: 50%;
+    width: 9px;
+    height: 9px;
+    margin-left: -4.5px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--accent-3) 55%);
+    box-shadow: 0 0 12px 2px color-mix(in srgb, var(--accent-3) 55%, transparent);
+  }
+
+  .sat-dot--ring {
+    width: 22px;
+    height: 7px;
+    margin-left: -11px;
+    margin-top: -2px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .sat-2 .sat-dot {
+    width: 7px;
+    height: 7px;
+    top: auto;
+    bottom: 9%;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--accent-2) 55%);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent-2) 50%, transparent);
+  }
+
+  /* twinkling sparkles */
+  .spark {
+    position: absolute;
+    font-size: 0.7rem;
+    color: var(--accent-3);
+    animation: sparkle 4.5s ease-in-out infinite;
+  }
+
+  .sp-1 {
+    top: 6%;
+    right: 16%;
+  }
+  .sp-2 {
+    bottom: 12%;
+    left: 8%;
+    animation-delay: 1.6s;
+    color: var(--accent-2);
+    font-size: 0.55rem;
+  }
+  .sp-3 {
+    top: 40%;
+    right: -2%;
+    animation-delay: 2.8s;
+    font-size: 0.5rem;
+  }
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      opacity: 0.15;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.15);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .orbit-wrap {
+      width: min(360px, 70vw);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit-wrap {
+      transform: none;
+    }
+
+    .ring-1,
+    .ring-2,
+    .ring-3,
+    .orbit-sat,
+    .planet-sheen {
+      animation: none;
+    }
+
+    .planet-body,
+    .planet-glow,
+    .spark {
+      animation: none;
+    }
+  }
+</style>

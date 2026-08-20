@@ -1,0 +1,793 @@
+---
+/**
+ * Life & astronomy statistics.
+ *
+ * Reads site.birth.date (ISO 8601 + UTC offset). Computes real celestial
+ * cycles with astronomy-engine, caches the result in localStorage, and
+ * live-ticks seconds lived / distance travelled / moon distance.
+ * Shows a setup card while BIRTH_DATE is still a placeholder.
+ */
+
+import { site } from '../config/site';
+import Icon from './Icon.astro';
+
+const birth = site.birth.date;
+const sample = site.birth.sampleDate;
+---
+
+<section class="life" aria-label="Life statistics">
+  <div
+    id="life-root"
+    data-birth={birth}
+    data-sample={sample}
+    class="life-root"
+  ></div>
+</section>
+
+<style>
+  .life-root {
+    display: grid;
+    gap: 20px;
+  }
+
+  .life-state {
+    padding: clamp(24px, 4vw, 44px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .life-state__orb {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--grad-accent);
+    box-shadow: 0 14px 34px -10px color-mix(in srgb, var(--accent) 60%, transparent);
+    margin-bottom: 6px;
+  }
+
+  .life-state h3 {
+    font-size: 1.25rem;
+  }
+
+  .life-state p {
+    color: var(--text-2);
+    font-size: 0.94rem;
+    max-width: 52ch;
+  }
+
+  .life-state code {
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    padding: 3px 9px;
+    border-radius: 7px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  /* computing */
+  .life-progress {
+    width: min(360px, 80%);
+    height: 5px;
+    border-radius: 99px;
+    background: var(--skeleton);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .life-progress i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--grad-accent);
+    animation: life-load 2.6s var(--ease-out) infinite;
+  }
+
+  @keyframes life-load {
+    0% {
+      width: 4%;
+    }
+    60% {
+      width: 82%;
+    }
+    100% {
+      width: 96%;
+      opacity: 0.7;
+    }
+  }
+
+  .life-stage {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* age hero */
+  .life-age {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(20px, 4vw, 44px);
+    align-items: center;
+    padding: clamp(26px, 4vw, 44px);
+  }
+
+  .life-age__clock {
+    display: grid;
+    gap: 2px;
+  }
+
+  .life-age__nums {
+    font-size: clamp(2.1rem, 5vw, 3.4rem);
+    font-weight: 640;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .life-age__nums small {
+    font-size: 0.42em;
+    font-weight: 560;
+    color: var(--text-3);
+    letter-spacing: 0;
+  }
+
+  .life-age__secs {
+    font-size: 0.95rem;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .life-age__secs b {
+    color: var(--accent);
+    font-weight: 620;
+  }
+
+  .life-age__side {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+
+  .life-age__moon {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-radius: var(--r-md);
+    background: var(--glass-bg-2);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  .life-moon-orb {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fdf4ff, #c4b5fd 48%, #6d28d9);
+    box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--accent-2) 60%, transparent),
+      inset -4px -4px 10px rgba(60, 30, 120, 0.5);
+    flex: none;
+  }
+
+  /* stat cards */
+  .life-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .life-card {
+    padding: 20px 18px;
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    animation: card-in 0.6s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+    }
+  }
+
+  .life-card__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 8px;
+    color: var(--accent);
+    background: var(--grad-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .life-card .value {
+    font-size: 1.42rem;
+    font-weight: 640;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .life-card .label {
+    font-size: 0.82rem;
+    font-weight: 540;
+    color: var(--text-2);
+  }
+
+  .life-card .note {
+    font-size: 0.76rem;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* wide panels */
+  .life-panel {
+    padding: clamp(20px, 3vw, 28px);
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    animation: card-in 0.6s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  .life-panel h4 {
+    font-size: 1.02rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .life-panel h4 svg {
+    color: var(--accent);
+  }
+
+  .life-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* retrograde table */
+  .life-table {
+    display: grid;
+    gap: 2px;
+  }
+
+  .life-row {
+    display: grid;
+    grid-template-columns: 110px 56px 1fr 120px;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 10px;
+    border-radius: var(--r-md);
+    font-size: 0.87rem;
+    transition: background var(--dur-fast) ease;
+  }
+
+  .life-row:hover {
+    background: var(--glass-bg-2);
+  }
+
+  .life-row__head {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .life-row__planet {
+    font-weight: 580;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .life-row__count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 620;
+  }
+
+  .life-row__bar {
+    height: 5px;
+    border-radius: 99px;
+    background: var(--skeleton);
+    overflow: hidden;
+  }
+
+  .life-row__bar i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--grad-accent);
+  }
+
+  .life-row__next {
+    color: var(--text-3);
+    font-size: 0.8rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* moon live */
+  .life-moon {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(18px, 3vw, 30px);
+    align-items: center;
+    padding: clamp(22px, 3.4vw, 34px);
+  }
+
+  .life-moon__visual {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    flex: none;
+  }
+
+  .life-moon__disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f5f3ff, #c4b5fd 55%, #7c3aed);
+    box-shadow: 0 10px 34px -8px color-mix(in srgb, var(--accent-2) 55%, transparent),
+      inset -8px -10px 22px rgba(50, 25, 110, 0.45);
+    overflow: hidden;
+  }
+
+  .life-moon__shadow {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* A dark "night side" disc whose centre slides off the moon as it waxes:
+       50% = new moon (fully dark) … 200% = full moon (fully lit) */
+    background: radial-gradient(circle 92px at var(--moon-x, 140%) 50%, var(--bg) 0%, var(--bg) 58%, transparent 74%);
+    opacity: 0.94;
+  }
+
+  .life-moon__rings {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    border: 1px dashed var(--ring);
+    animation: ring-spin 40s linear infinite;
+  }
+
+  .life-moon__ring2 {
+    position: absolute;
+    inset: -26px;
+    border-radius: 50%;
+    border: 1px dotted color-mix(in srgb, var(--accent-2) 35%, transparent);
+    animation: ring-spin 60s linear infinite reverse;
+  }
+
+  @keyframes ring-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .life-moon__data {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .life-moon__phase {
+    font-size: 1.35rem;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+  }
+
+  .life-moon__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .life-moon__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .life-note {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    padding: 0 4px;
+    line-height: 1.6;
+  }
+
+  .life-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: var(--r-md);
+    font-size: 0.88rem;
+    color: var(--text-2);
+    background: var(--grad-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  @media (max-width: 980px) {
+    .life-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .life-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .life-cols {
+      grid-template-columns: 1fr;
+    }
+
+    .life-age {
+      grid-template-columns: 1fr;
+    }
+
+    .life-row {
+      grid-template-columns: 92px 48px 1fr;
+    }
+
+    .life-row__next {
+      display: none;
+    }
+
+    .life-moon {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .life-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .life-card,
+    .life-panel {
+      animation: none;
+    }
+
+    .life-moon__rings,
+    .life-moon__ring2,
+    .life-progress i {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    computeLifeStats,
+    liveCelestial,
+    loadCachedLife,
+    saveCachedLife,
+    birthKey,
+    moonPhaseName,
+    type LifeStats,
+    type LiveCelestial,
+  } from '../lib/life';
+  import { formatNumber, formatDecimal, timeUntil, formatDateMedium, countdown } from '../lib/format';
+  import { ICON_PATHS } from '../scripts/icons';
+
+  const root = document.getElementById('life-root') as HTMLElement | null;
+  const birthAttr = root?.dataset.birth ?? '';
+  const sampleAttr = root?.dataset.sample ?? '';
+
+  function esc(s: string): string {
+    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  const icon = (name: string, size = 16): string =>
+    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(ICON_PATHS[name] ?? '').split(' ').map((d: string) => `<path d="${d}"/>`).join('')}</svg>`;
+
+  /* ---------- rendering ---------- */
+
+  function renderSetup() {
+    root!.innerHTML = `
+      <div class="life-state glass">
+        <div class="life-state__orb">${icon('orbit', 24)}</div>
+        <h3>Your life, measured by the cosmos</h3>
+        <p>Set <code>birth.date</code> in <code>src/config/site.ts</code> (ISO format with
+        UTC offset, e.g. <code>1997-08-19T14:32:00+05:30</code>) and this panel will compute
+        full moons, eclipses, planetary retrogrades, and more since the moment you were born.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn--ghost btn--sm" id="life-demo">Preview with sample date</button>
+          <a class="btn btn--primary btn--sm" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString" target="_blank" rel="noopener">ISO format guide</a>
+        </div>
+      </div>`;
+    root!.querySelector('#life-demo')?.addEventListener('click', () => init(sampleAttr));
+  }
+
+  function renderComputing(stage: string) {
+    root!.innerHTML = `
+      <div class="life-state glass" aria-busy="true">
+        <div class="life-state__orb">${icon('sparkles', 24)}</div>
+        <h3>Calculating your place in the cosmos…</h3>
+        <p>Tracing every moon phase, eclipse and planetary retrograde between your
+        birth and now. This takes a moment, then the result is cached locally.</p>
+        <div class="life-progress"><i></i></div>
+        <p class="life-stage" id="life-stage">${esc(stage)}</p>
+      </div>`;
+  }
+
+  function renderError(message: string) {
+    root!.innerHTML = `
+      <div class="life-state glass">
+        <div class="life-state__orb" style="background:linear-gradient(120deg,#f59e0b,#ef4444)">${icon('refresh', 22)}</div>
+        <h3>Something drifted off course</h3>
+        <p>${esc(message)} — the ephemeris calculation could not be completed.
+        Please check that <code>birth.date</code> is a valid ISO date, then retry.</p>
+        <button class="btn btn--primary btn--sm" id="life-retry">Try again</button>
+      </div>`;
+    root!.querySelector('#life-retry')?.addEventListener('click', () => init());
+  }
+
+  function card(iconName: string, value: string, label: string, note: string, i: number): string {
+    return `
+      <div class="life-card glass" style="--i:${i}">
+        <span class="life-card__icon">${icon(iconName, 16)}</span>
+        <span class="value">${value}</span>
+        <span class="label">${esc(label)}</span>
+        ${note ? `<span class="note">${esc(note)}</span>` : ''}
+      </div>`;
+  }
+
+  function renderReady(s: LifeStats) {
+    const primeList = s.primeAges.length ? `${s.primeAges.slice(0, 8).join(' · ')}${s.primeAges.length > 8 ? '…' : ''}` : '—';
+    const retroRows = s.retrogrades
+      .map(
+        (r, i) => `
+        <div class="life-row" style="--i:${i}">
+          <span class="life-row__planet">${icon('orbit', 14)} ${r.planet}</span>
+          <span class="life-row__count">${formatNumber(r.count)}</span>
+          <span class="life-row__bar" title="${formatDecimal(r.fraction * 100, 1)}% of your life in retrograde">
+            <i style="width:${Math.round(r.fraction * 100)}%"></i>
+          </span>
+          <span class="life-row__next">${r.nextRetroStart ? timeUntil(r.nextRetroStart) : '—'}</span>
+        </div>`,
+      )
+      .join('');
+
+    root!.innerHTML = `
+      <div class="life-age glass" style="--i:0">
+        <div class="life-age__clock">
+          <span class="life-age__nums" id="life-age-nums">
+            ${s.years}<small>y</small> ${s.months}<small>m</small> ${s.days}<small>d</small>
+          </span>
+          <span class="life-age__secs">you've been alive for <b id="life-seconds">${formatNumber(s.seconds)}</b> seconds</span>
+        </div>
+        <div class="life-age__side">
+          <span class="chip">Born on a ${s.weekdayBorn}</span>
+          <span class="chip chip--accent">${formatDateMedium(s.birth)}</span>
+          <div class="life-age__moon">
+            <span class="life-moon-orb"></span>
+            <span style="display:grid;gap:2px">
+              <b style="font-size:.95rem">Born under a ${s.moonAtBirth.phaseName.toLowerCase()}</b>
+              <small style="color:var(--text-3);font-size:.78rem">${formatDecimal(s.moonAtBirth.illumination * 100, 0)}% illuminated · ${formatDateMedium(s.birth)}</small>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="life-grid">
+        ${card('moon-crescent', formatNumber(s.fullMoons), 'Full moons witnessed', 'each one a reset of the lunar cycle', 1)}
+        ${card('moon', formatNumber(s.newMoons), 'New moons witnessed', 'the sky went dark, then rebuilt itself', 2)}
+        ${card('flame', formatNumber(s.solarEclipses), 'Solar eclipses (worldwide)', 'the Moon crossed the Sun’s face', 3)}
+        ${card('globe', formatNumber(s.lunarEclipses), 'Lunar eclipses (worldwide)', 'the Earth’s shadow touched the Moon', 4)}
+        ${card('compass', formatNumber(s.seasons), 'Seasons turned', 'solstices & equinoxes since your birth', 5)}
+        ${card('zap', formatNumber(Math.round(s.sunRotations)), 'Sun rotations', 'the Sun spun on its axis ~every 27 days', 6)}
+        ${card('star', formatNumber(s.venusReturns), 'Venus returns', 'times Venus crossed your birth sky position', 7)}
+        ${card('calendar', formatNumber(s.fridayThe13ths), 'Friday the 13ths', 'spooky days you have survived', 8)}
+        ${card('calendar', formatNumber(s.leapDays), 'Leap days lived', 'February 29ths — one extra day, four times a decade', 9)}
+        ${card('infinity', formatNumber(s.fullMoonBirthdays), 'Full-moon birthdays', 'birthdays when the Moon was full', 10)}
+        ${card('gauge', primeList, 'Prime ages reached', 'your age in years was a prime number', 11)}
+        ${card('rocket', `${formatNumber(s.lightConeLightDays)} light-days`, 'Your light cone', 'the first light of your birth has travelled this far', 12)}
+      </div>
+
+      <div class="life-cols">
+        <div class="life-panel glass" style="--i:13">
+          <h4>${icon('orbit', 16)} Apparent retrograde cycles</h4>
+          <p class="life-note">Planets appear to move backwards when Earth overtakes them. This is how much of your life each planet spent doing so.</p>
+          <div class="life-table">
+            <div class="life-row life-row__head">
+              <span>Planet</span><span>Cycles</span><span>Time retrograde</span><span style="text-align:right">Next</span>
+            </div>
+            ${retroRows}
+          </div>
+        </div>
+
+        <div class="life-panel glass" style="--i:14">
+          <h4>${icon('telescope', 16)} Eclipses ahead</h4>
+          <p class="life-note">The next time the Sun or Moon will be eclipsed, somewhere on Earth.</p>
+          <div style="display:grid;gap:10px;margin-top:6px">
+            ${s.nextSolarEclipse ? `
+              <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+                <span class="life-card__icon" style="margin:0">${icon('flame', 16)}</span>
+                <span style="display:grid;gap:2px">
+                  <b style="font-size:.95rem">Next solar eclipse</b>
+              <small style="color:var(--text-3);font-size:.8rem">${formatDateMedium(s.nextSolarEclipse)} · ${timeUntil(s.nextSolarEclipse)}</small>
+              </span>
+            </div>` : ''}
+            ${s.nextLunarEclipse ? `
+              <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+                <span class="life-card__icon" style="margin:0">${icon('moon', 16)}</span>
+                <span style="display:grid;gap:2px">
+                  <b style="font-size:.95rem">Next lunar eclipse</b>
+                  <small style="color:var(--text-3);font-size:.8rem">${formatDateMedium(s.nextLunarEclipse)} · ${timeUntil(s.nextLunarEclipse)}</small>
+                </span>
+              </div>` : ''}
+            <div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+              <span class="life-card__icon" style="margin:0">${icon('infinity', 16)}</span>
+              <span style="display:grid;gap:2px">
+                <b style="font-size:.95rem">Galactic year progress</b>
+                <small style="color:var(--text-3);font-size:.8rem">${formatDecimal(s.galacticYearFraction * 100, 7)}% of one orbit around the Milky Way · next galactic birthday in ~${formatNumber(230_000_000)} years</small>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="life-moon glass" style="--i:15">
+        <div class="life-moon__visual">
+          <div class="life-moon__ring2"></div>
+          <div class="life-moon__rings"></div>
+          <div class="life-moon__disc"><div class="life-moon__shadow" id="life-moon-shadow"></div></div>
+        </div>
+        <div class="life-moon__data">
+          <span class="life-moon__phase" id="life-moon-phase">—</span>
+          <div class="life-moon__row">
+            <span class="chip chip--accent life-moon__pill">${icon('sun', 12)} <span id="life-moon-illum">—</span> illuminated</span>
+            <span class="chip life-moon__pill">${icon('orbit', 12)} <span id="life-moon-dist">—</span> km from Earth</span>
+            <span class="chip life-moon__pill">${icon('moon', 12)} next full moon in <b id="life-next-full">—</b></span>
+          </div>
+          <p class="life-note" style="margin-top:4px">The Moon's distance and illumination are computed live from its real orbit — it moves thousands of kilometres closer or farther every day, and right now it is drifting <span id="life-moon-trend" class="tnum">—</span></p>
+        </div>
+      </div>
+
+      <div class="life-cols">
+        <div class="life-panel glass" style="--i:16">
+          <h4>${icon('globe', 16)} Your journey through space</h4>
+          <p class="life-note">You are never standing still. These distances update live, every second.</p>
+          <div style="display:grid;gap:10px;margin-top:6px">
+            ${card('globe', '<span id="life-earth-km">—</span> km', 'Earth has carried you around the Sun', 'at 29.8 km/s, along a 940-million-km orbit', 0)}
+            ${card('orbit', '<span id="life-galaxy-km">—</span> km', 'the Solar System has travelled through the Milky Way', 'at ~230 km/s, toward the constellation Cygnus', 0)}
+          </div>
+        </div>
+
+        <div class="life-panel glass" style="--i:17">
+          <h4>${icon('calendar', 16)} Time oddities</h4>
+          <p class="life-note">Small, strange calendars only you have.</p>
+          <div style="display:grid;gap:10px;margin-top:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+              <span style="font-size:.9rem;color:var(--text-2)">Born on a</span>
+              <b class="tnum">${s.weekdayBorn}</b>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+              <span style="font-size:.9rem;color:var(--text-2)">Full-moon birthdays</span>
+              <b class="tnum">${formatNumber(s.fullMoonBirthdays)}</b>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+              <span style="font-size:.9rem;color:var(--text-2)">Sun rotations since birth</span>
+              <b class="tnum">${formatNumber(Math.round(s.sunRotations))}</b>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r-md);background:var(--glass-bg-2);border:1px solid var(--glass-border-2)">
+              <span style="font-size:.9rem;color:var(--text-2)">Venus returns to your birth sky</span>
+              <b class="tnum">${formatNumber(s.venusReturns)}</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="life-banner">
+        ${icon('sparkles', 15)}
+        <span>Computed from real ephemeris data (astronomy-engine), not estimates. Life-stats are cached locally for 6 hours.</span>
+      </div>`;
+
+    startTicking(s);
+  }
+
+  /* ---------- live ticking ---------- */
+
+  let tickTimer: number | null = null;
+
+  function startTicking(s: LifeStats) {
+    if (tickTimer) window.clearInterval(tickTimer);
+
+    const update = () => {
+      const live = liveCelestial(s.birth, s.nextFullMoon);
+      const el = {
+        seconds: document.getElementById('life-seconds'),
+        earth: document.getElementById('life-earth-km'),
+        galaxy: document.getElementById('life-galaxy-km'),
+        phase: document.getElementById('life-moon-phase'),
+        illum: document.getElementById('life-moon-illum'),
+        dist: document.getElementById('life-moon-dist'),
+        nextFull: document.getElementById('life-next-full'),
+        shadow: document.getElementById('life-moon-shadow'),
+        trend: document.getElementById('life-moon-trend'),
+      };
+      if (!el.seconds || !el.earth || !el.galaxy || !el.phase || !el.illum || !el.dist || !el.nextFull) return;
+      el.seconds.textContent = formatNumber(live.secondsLived);
+      el.earth.textContent = formatNumber(live.earthOrbitKm);
+      el.galaxy.textContent = formatNumber(live.galaxyOrbitKm);
+      el.phase.textContent = `${live.moonPhaseName} · ${formatDecimal(live.moonIllumination * 100, 0)}%`;
+      el.illum.textContent = formatDecimal(live.moonIllumination * 100, 1) + '%';
+      el.dist.textContent = formatNumber(live.moonDistanceKm);
+      el.nextFull.textContent = countdown(new Date(Date.now() + live.nextFullMoonInMs));
+      if (el.shadow) {
+        // terminator: new moon = shadow covers everything, full moon = shadow off-disc
+        const lit = live.moonIllumination;
+        const x = 50 + lit * 150; // 50 (new) … 200 (full)
+        el.shadow.style.setProperty('--moon-x', `${Math.min(200, Math.max(50, x))}%`);
+      }
+      if (el.trend) {
+        // is the Moon approaching or receding? compare with +3h
+        const later = liveCelestial(s.birth, s.nextFullMoon, new Date(Date.now() + 3 * 3600000));
+        const deltaKmPerH = (later.moonDistanceKm - live.moonDistanceKm) / 3;
+        const dir = deltaKmPerH >= 0 ? 'farther' : 'closer';
+        el.trend.textContent = `${Math.abs(Math.round(deltaKmPerH))} km/h ${dir}`;
+      }
+    };
+    update();
+    tickTimer = window.setInterval(update, 1000);
+  }
+
+  /* ---------- init ---------- */
+
+  async function init(customBirth?: string) {
+    if (!root) return;
+    const raw = customBirth || birthAttr;
+    if (!raw || raw.startsWith('[')) {
+      renderSetup();
+      return;
+    }
+    const birthDate = new Date(raw);
+    if (isNaN(birthDate.getTime())) {
+      renderError('birth.date is not a valid ISO date.');
+      return;
+    }
+
+    const key = birthKey(birthDate);
+    const cached = loadCachedLife(key);
+    if (cached) {
+      renderReady(cached);
+      return;
+    }
+
+    renderComputing('tracing moon phases & eclipses…');
+    try {
+      const stats = await computeLifeStats(birthDate);
+      saveCachedLife(key, stats);
+      renderReady(stats);
+    } catch (err) {
+      renderError(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }
+
+  let inited = false;
+  document.addEventListener('astro:page-load', () => {
+    if (inited || !root) return;
+    inited = true;
+    init();
+  });
+</script>

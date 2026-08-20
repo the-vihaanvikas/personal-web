@@ -1,0 +1,392 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import { site, socialLinks } from '../config/site';
+
+const hasEmail = site.email !== '[EMAIL]';
+const socialIcons: Record<string, string> = {
+  github: 'github',
+  twitter: 'twitter',
+  linkedin: 'linkedin',
+  mastodon: 'mastodon',
+};
+const socials = socialLinks.map((s) => ({
+  label: s.label.charAt(0).toUpperCase() + s.label.slice(1),
+  icon: socialIcons[s.label] ?? 'external',
+  href: s.href,
+}));
+---
+
+<BaseLayout title="Contact" active="/contact">
+  <section class="container page-head">
+    <Reveal>
+      <p class="eyebrow">Contact</p>
+    </Reveal>
+    <Reveal delay={70}>
+      <h1>
+        Let's put something <span class="font-serif grad-text">in orbit</span>
+      </h1>
+    </Reveal>
+    <Reveal delay={140}>
+      <p class="lead">
+        A project, a role, a wild idea, or just a good conversation about
+        space and software — my inbox is open.
+      </p>
+    </Reveal>
+  </section>
+
+  <section class="section container contact-grid">
+    <div class="contact-main">
+      <Reveal>
+        <div class="glass contact-card">
+          <div class="contact-card__head">
+            <h2>Send a message</h2>
+            <p>This form opens your mail app with everything pre-filled — no tracking, no servers.</p>
+          </div>
+          <form class="contact-form" action={hasEmail ? `mailto:${site.email}` : 'mailto:'} method="post" enctype="text/plain">
+            <div class="contact-form__row">
+              <label>
+                <span>Name</span>
+                <input type="text" name="name" placeholder="Ada Lovelace" autocomplete="name" required />
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+              </label>
+            </div>
+            <label>
+              <span>Subject</span>
+              <input type="text" name="subject" placeholder="Let's build something" required />
+            </label>
+            <label>
+              <span>Message</span>
+              <textarea name="body" rows="6" placeholder="Tell me about your idea…" required></textarea>
+            </label>
+            <button class="btn btn--primary" type="submit">
+              Send message
+              <svg class="arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>
+            </button>
+          </form>
+        </div>
+      </Reveal>
+    </div>
+
+    <aside class="contact-side">
+      <Reveal delay={100}>
+        <a class="glass contact-email glass--hover" href={`mailto:${site.email}`}>
+          <span class="contact-email__icon"><Icon name="mail" size={20} /></span>
+          <span class="contact-email__label">Email me directly</span>
+          <span class="contact-email__value">{site.email}</span>
+          <Icon name="arrow-up-right" size={16} class="contact-email__arrow" />
+        </a>
+      </Reveal>
+
+      <Reveal delay={160}>
+        <div class="glass contact-card contact-card--socials">
+          <h3>Elsewhere</h3>
+          <div class="contact-socials">
+            {socials.map((s) => (
+              <a class="contact-social" href={s.href} target="_blank" rel="noopener noreferrer">
+                <Icon name={s.icon} size={17} />
+                <span>{s.label}</span>
+                <Icon name="arrow-up-right" size={13} />
+              </a>
+            ))}
+            {socials.length === 0 && (
+              <p class="contact-socials__empty">
+                Social links appear here once you add them to{' '}
+                <code>site.socials</code> in <code>src/config/site.ts</code>.
+              </p>
+            )}
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal delay={220}>
+        <div class="glass contact-card">
+          <h3>Signal details</h3>
+          <div class="contact-facts">
+            <div class="contact-fact">
+              <span class="contact-fact__label">Location</span>
+              <span class="contact-fact__value">{site.location}</span>
+            </div>
+            <div class="contact-fact">
+              <span class="contact-fact__label">Local time</span>
+              <span class="contact-fact__value tnum" id="local-clock" data-tz={site.timezone}>—</span>
+            </div>
+            <div class="contact-fact">
+              <span class="contact-fact__label">Response time</span>
+              <span class="contact-fact__value">Usually within 48 hours</span>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </aside>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: 16px;
+    max-width: 760px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+
+  .contact-main,
+  .contact-side {
+    display: grid;
+    gap: 22px;
+  }
+
+  .contact-card {
+    padding: clamp(22px, 3vw, 32px);
+    display: grid;
+    gap: 16px;
+  }
+
+  .contact-card__head h2 {
+    font-size: 1.3rem;
+  }
+
+  .contact-card__head p {
+    color: var(--text-3);
+    font-size: 0.88rem;
+    margin-top: 4px;
+  }
+
+  .contact-form {
+    display: grid;
+    gap: 14px;
+  }
+
+  .contact-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .contact-form label {
+    display: grid;
+    gap: 7px;
+  }
+
+  .contact-form label span {
+    font-size: 0.78rem;
+    font-weight: 560;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--text-1);
+    padding: 12px 15px;
+    border-radius: var(--r-md);
+    background: var(--glass-bg-2);
+    border: 1px solid var(--glass-border-2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+    resize: vertical;
+    width: 100%;
+  }
+
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder {
+    color: var(--text-3);
+    opacity: 0.8;
+  }
+
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--glass-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  .contact-form .btn {
+    justify-self: start;
+    margin-top: 4px;
+  }
+
+  .contact-email {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    align-items: center;
+    padding: 22px;
+  }
+
+  .contact-email__icon {
+    grid-row: 1 / 3;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--grad-accent);
+    box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .contact-email__label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    font-weight: 560;
+  }
+
+  .contact-email__value {
+    font-weight: 620;
+    word-break: break-all;
+  }
+
+  .contact-email__arrow {
+    grid-row: 1 / 3;
+    color: var(--text-3);
+    transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) ease;
+  }
+
+  .contact-email:hover .contact-email__arrow {
+    transform: translate(2px, -2px);
+    color: var(--accent);
+  }
+
+  .contact-card h3 {
+    font-size: 1.02rem;
+  }
+
+  .contact-socials {
+    display: grid;
+    gap: 6px;
+  }
+
+  .contact-social {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 13px;
+    border-radius: var(--r-md);
+    font-size: 0.92rem;
+    font-weight: 520;
+    color: var(--text-2);
+    transition: background var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+  }
+
+  .contact-social:hover {
+    background: var(--glass-bg-2);
+    color: var(--text-1);
+    transform: translateX(3px);
+  }
+
+  .contact-social svg:last-child {
+    margin-left: auto;
+    color: var(--text-3);
+  }
+
+  .contact-socials__empty {
+    color: var(--text-3);
+    font-size: 0.86rem;
+    line-height: 1.6;
+    padding: 6px 4px;
+  }
+
+  .contact-socials__empty code {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  .contact-facts {
+    display: grid;
+    gap: 2px;
+  }
+
+  .contact-fact {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 4px;
+    border-bottom: 1px dashed var(--glass-border-2);
+    font-size: 0.9rem;
+  }
+
+  .contact-fact:last-child {
+    border-bottom: 0;
+  }
+
+  .contact-fact__label {
+    color: var(--text-3);
+    font-size: 0.82rem;
+  }
+
+  .contact-fact__value {
+    font-weight: 560;
+    text-align: right;
+  }
+
+  @media (max-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .contact-form__row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Live local-time clock for the configured timezone.
+  const clock = document.getElementById('local-clock');
+  if (clock) {
+    const tz = clock.dataset.tz ?? '';
+    const update = () => {
+      const now = new Date();
+      const resolvedTz =
+        !tz || tz.startsWith('[')
+          ? undefined
+          : (function () {
+              try {
+                new Intl.DateTimeFormat('en-US', { timeZone: tz }).format();
+                return tz;
+              } catch {
+                return undefined;
+              }
+            })();
+      clock.textContent = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        ...(resolvedTz ? { timeZone: resolvedTz } : {}),
+      }).format(now);
+    };
+    update();
+    window.setInterval(update, 1000);
+  }
+</script>

@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+---
+
+<BaseLayout title="Lost in space" description="This page drifted out of orbit — 404">
+  <section class="container notfound">
+    <Reveal as="scale">
+      <div class="glass notfound-card">
+        <span class="notfound-code font-serif grad-text">404</span>
+        <h1>You've drifted off the map</h1>
+        <p>
+          This page escaped orbit — or never existed. Either way, the stars
+          are still right where you left them.
+        </p>
+        <div class="notfound-actions">
+          <a class="btn btn--primary" href="/">
+            <Icon name="arrow-right" size={15} />
+            Return home
+          </a>
+          <a class="btn btn--ghost" href="/stats">
+            <Icon name="orbit" size={15} />
+            See my stats
+          </a>
+        </div>
+      </div>
+    </Reveal>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    min-height: calc(100svh - var(--header-h) - 40px);
+    display: grid;
+    place-items: center;
+  }
+
+  .notfound-card {
+    max-width: 560px;
+    padding: clamp(36px, 6vw, 64px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .notfound-code {
+    font-size: clamp(4rem, 10vw, 6.5rem);
+    line-height: 1;
+    font-style: italic;
+  }
+
+  .notfound-card h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .notfound-card p {
+    color: var(--text-2);
+    max-width: 40ch;
+  }
+
+  .notfound-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+</style>

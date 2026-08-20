@@ -1,0 +1,394 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { site } from '../config/site';
+
+const hasExperience = site.experience[0].role !== '[ROLE]';
+const hasEducation = site.education[0].school !== '[SCHOOL / UNIVERSITY]';
+---
+
+<BaseLayout title="Experience" active="/experience">
+  <section class="container page-head">
+    <Reveal>
+      <p class="eyebrow">Experience</p>
+    </Reveal>
+    <Reveal delay={70}>
+      <h1>
+        Missions <span class="font-serif grad-text">&amp; landings</span>
+      </h1>
+    </Reveal>
+    <Reveal delay={140}>
+      <p class="lead">
+        The roles, teams and projects that shaped how I build — in rough
+        chronological order.
+      </p>
+    </Reveal>
+  </section>
+
+  <section class="section container">
+    {
+      hasExperience ? (
+        <ol class="timeline">
+          {site.experience.map((job, i) => (
+            <li class="timeline-item" data-reveal style={`--d:${i * 90}ms`}>
+              <div class="timeline-node" aria-hidden="true">
+                <span class="timeline-node__core"></span>
+              </div>
+              <article class="glass glass--hover timeline-card">
+                <div class="timeline-card__head">
+                  <div>
+                    <h3>{job.role}</h3>
+                    <p class="timeline-card__company">
+                      {job.company}
+                      {job.location !== '[LOCATION]' && <span class="timeline-card__loc">· {job.location}</span>}
+                    </p>
+                  </div>
+                  <div class="timeline-card__meta">
+                    {job.current && <span class="chip chip--accent">● Current</span>}
+                    <span class="chip tnum">{job.period}</span>
+                  </div>
+                </div>
+                <p class="timeline-card__summary">{job.summary}</p>
+                <ul class="timeline-card__bullets">
+                  {job.bullets.map((b) => (
+                    <li>{b}</li>
+                  ))}
+                </ul>
+                <div class="timeline-card__tags">
+                  {job.tags.map((t) => <span class="chip">{t}</span>)}
+                </div>
+              </article>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <Reveal>
+          <div class="glass placeholder-note">
+            <Icon name="sparkles" size={18} />
+            <p>
+              Your career trajectory will appear here once you fill in{' '}
+              <code>site.experience</code> in <code>src/config/site.ts</code> — role,
+              company, period, and a few bullet points each.
+            </p>
+          </div>
+        </Reveal>
+      )
+    }
+  </section>
+
+  <section class="section container">
+    <SectionHeading eyebrow="04 · Education">
+      Where I <span class="font-serif grad-text">learned the map</span>
+    </SectionHeading>
+    <div class="edu-grid">
+      {
+        hasEducation ? (
+          site.education.map((e, i) => (
+            <Reveal delay={i * 90} class="edu-card glass">
+              <span class="edu-card__icon"><Icon name="rocket" size={17} /></span>
+              <h3>{e.degree}</h3>
+              <p class="edu-card__school">{e.school}</p>
+              <span class="chip tnum">{e.period}</span>
+              {e.note !== '[NOTE_OR_HONORS]' && <p class="edu-card__note">{e.note}</p>}
+            </Reveal>
+          ))
+        ) : (
+          <Reveal>
+            <div class="glass placeholder-note">
+              <Icon name="sparkles" size={18} />
+              <p>
+                Add your education to <code>site.education</code> in{' '}
+                <code>src/config/site.ts</code>.
+              </p>
+            </div>
+          </Reveal>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section container">
+    <Reveal as="scale">
+      <div class="cta-banner glass">
+        <div class="cta-banner__glow" aria-hidden="true"></div>
+        <h2>
+          Want the <span class="font-serif grad-text">full story?</span>
+        </h2>
+        <p>My résumé has more detail than this page can hold.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;position:relative">
+          {site.resumeUrl !== '[RESUME_URL]' && (
+            <a class="btn btn--primary" href={site.resumeUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="download" size={15} />
+              Download résumé
+            </a>
+          )}
+          <a class="btn btn--ghost" href="/contact">Or just say hi</a>
+        </div>
+      </div>
+    </Reveal>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: 16px;
+    max-width: 760px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  /* ── timeline ── */
+
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 26px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 15px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent) 55%, transparent),
+      color-mix(in srgb, var(--accent-2) 30%, transparent) 60%,
+      transparent
+    );
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 52px;
+    display: grid;
+  }
+
+  .timeline-node {
+    position: absolute;
+    left: 0;
+    top: 22px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--glass-bg-2);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .timeline-node::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1px dashed var(--ring);
+    animation: node-spin 24s linear infinite;
+  }
+
+  @keyframes node-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .timeline-node__core {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--grad-accent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+
+  .timeline-card {
+    padding: clamp(20px, 3vw, 28px);
+    display: grid;
+    gap: 12px;
+  }
+
+  .timeline-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .timeline-card__head h3 {
+    font-size: 1.2rem;
+  }
+
+  .timeline-card__company {
+    color: var(--accent);
+    font-weight: 540;
+    font-size: 0.94rem;
+    margin-top: 2px;
+  }
+
+  .timeline-card__loc {
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .timeline-card__meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .timeline-card__summary {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .timeline-card__bullets {
+    display: grid;
+    gap: 8px;
+  }
+
+  .timeline-card__bullets li {
+    position: relative;
+    padding-left: 20px;
+    color: var(--text-2);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .timeline-card__bullets li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--grad-accent);
+    opacity: 0.75;
+  }
+
+  .timeline-card__tags {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  /* ── education ── */
+
+  .edu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .edu-card {
+    padding: 26px;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+
+  .edu-card__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 8px;
+    color: var(--accent);
+    background: var(--grad-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .edu-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .edu-card__school {
+    color: var(--text-2);
+    font-size: 0.94rem;
+  }
+
+  .edu-card__note {
+    color: var(--text-3);
+    font-size: 0.86rem;
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+
+  .placeholder-note {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 26px 30px;
+    color: var(--text-2);
+    font-size: 0.94rem;
+  }
+
+  .placeholder-note svg {
+    color: var(--accent);
+    flex: none;
+  }
+
+  .placeholder-note code {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  .cta-banner {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(34px, 5vw, 56px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    position: relative;
+  }
+
+  .cta-banner p {
+    color: var(--text-2);
+    position: relative;
+  }
+
+  .cta-banner__glow {
+    position: absolute;
+    inset: -40% -20%;
+    background:
+      radial-gradient(46% 60% at 30% 20%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+      radial-gradient(42% 55% at 75% 80%, color-mix(in srgb, var(--accent-3) 20%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 720px) {
+    .edu-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-node::before {
+      animation: none;
+    }
+  }
+</style>

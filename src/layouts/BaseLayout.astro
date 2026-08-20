@@ -1,0 +1,142 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
+
+import { ClientRouter } from 'astro:transitions';
+
+import { site } from '../config/site';
+import SpaceBackdrop from '../components/SpaceBackdrop.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import interWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import serifItalicWoff2 from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
+
+interface Props {
+  title: string;
+  description?: string;
+  active?: string;
+}
+
+const {
+  title,
+  description = site.bio === '[BIO]' ? 'A personal portfolio crafted among the stars.' : site.bio,
+  active = '',
+} = Astro.props;
+
+const pageTitle = `${title} · ${site.name}`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" as="image" href="/favicon.svg" />
+
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#05070f" />
+
+    <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serifItalicWoff2} as="font" type="font/woff2" crossorigin />
+
+    <!-- Set theme before first paint to avoid flash -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <SpaceBackdrop />
+
+    <Header active={active} />
+
+    <main id="main" class="page">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <button id="to-top" class="to-top" type="button" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19V5 M5 12l7-7 7 7" />
+      </svg>
+    </button>
+
+    <script>
+      import '../scripts/motion';
+    </script>
+
+    <style is:global>
+      .to-top {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 40;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--text-1);
+        background: var(--glass-bg-2);
+        border: 1px solid var(--glass-border);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+        opacity: 0;
+        transform: translateY(14px);
+        pointer-events: none;
+        transition:
+          opacity var(--dur-med) var(--ease-out),
+          transform var(--dur-med) var(--ease-out),
+          color var(--dur-fast) ease;
+      }
+
+      .to-top.is-visible {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+      }
+
+      .to-top:hover {
+        color: var(--accent);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .to-top {
+          transition: opacity 0.01ms;
+        }
+      }
+    </style>
+  </body>
+</html>

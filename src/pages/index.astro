@@ -1,0 +1,739 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import OrbitVisual from '../components/OrbitVisual.astro';
+import Marquee from '../components/Marquee.astro';
+import Avatar from '../components/Avatar.astro';
+import { site } from '../config/site';
+
+const featured = site.projects.filter((p) => p.status === 'Featured').slice(0, 2);
+const hasFeatured = featured.length > 0;
+const projectsCount = site.projects.length;
+---
+
+<BaseLayout title="Home" active="/">
+  <!-- ───────────── Hero ───────────── -->
+  <section class="hero container">
+    <div class="hero__inner">
+      <div class="hero__copy">
+        {site.availability && (
+          <p class="hero-pill" data-hero>
+            <span class="hero-pill__dot" aria-hidden="true"></span>
+            {site.availabilityNote === '[AVAILABILITY_NOTE]'
+              ? 'Available for new projects'
+              : site.availabilityNote}
+          </p>
+        )}
+
+        <h1 class="hero-title" data-hero data-hero-1>
+          Hello, I'm <em class="font-serif grad-text">{site.name}</em>
+        </h1>
+        <p class="hero-tag" data-hero data-hero-2>
+          <span class="font-serif">{site.tagline === '[TAGLINE]' ? '— I craft elegant digital experiences' : site.tagline}</span>
+        </p>
+
+        <p class="hero-bio" data-hero data-hero-3>
+          {site.bio === '[BIO]'
+            ? 'Design-minded developer building fast, beautiful interfaces — with a soft spot for typography, space, and the details most people never notice.'
+            : site.bio}
+        </p>
+
+        <div class="hero-cta" data-hero data-hero-4>
+          <a class="btn btn--primary" href="/projects">
+            View my work
+            <svg class="arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>
+          </a>
+          <a class="btn" href="/contact">Get in touch</a>
+          <a class="btn btn--ghost" href={site.socials.github} target="_blank" rel="noopener noreferrer">
+            <Icon name="github" size={15} />
+            GitHub
+          </a>
+        </div>
+
+        <div class="hero-meta" data-hero data-hero-5>
+          <span class="hero-meta__item">
+            <b class="tnum">{site.stats.yearsExperience}</b> yrs building
+          </span>
+          <span class="hero-meta__sep" aria-hidden="true"></span>
+          <span class="hero-meta__item">
+            <b class="tnum">{projectsCount}</b> projects
+          </span>
+          <span class="hero-meta__sep" aria-hidden="true"></span>
+          <span class="hero-meta__item">
+            <b class="tnum">{site.stats.technologies}</b> technologies
+          </span>
+        </div>
+      </div>
+
+      <div class="hero__visual">
+        <OrbitVisual />
+      </div>
+    </div>
+
+    <a class="hero-scroll" href="#work" aria-label="Scroll to see work">
+      <span class="hero-scroll__mouse" aria-hidden="true"><i></i></span>
+    </a>
+  </section>
+
+  <div class="container">
+    <Marquee />
+  </div>
+
+  <!-- ───────────── Selected work ───────────── -->
+  <section id="work" class="section container">
+    <div class="section-top">
+      <SectionHeading eyebrow="01 · Selected work">
+        Things I've <span class="font-serif grad-text">built</span>
+      </SectionHeading>
+      <Reveal delay={140}>
+        <a class="link-arrow" href="/projects">
+          All projects
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </Reveal>
+    </div>
+
+    {
+      hasFeatured ? (
+        <div class="featured-grid">
+          {featured.map((p, i) => (
+            <Reveal delay={i * 110} class="featured-grid__item">
+              <article class="glass glass--hover project-card">
+                <a
+                  class="project-card__cover"
+                  href={p.liveUrl !== '[LIVE_URL]' ? p.liveUrl : p.repoUrl !== '[REPO_URL]' ? p.repoUrl : '/projects'}
+                  target={p.liveUrl !== '[LIVE_URL]' ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  style={`--c1:${p.accent[0]};--c2:${p.accent[1]}`}
+                  aria-label={`${p.title} — open project`}
+                >
+                  <span class="project-card__glyph">{p.glyph}</span>
+                  <span class="project-card__status chip">{p.status}</span>
+                  <span class="project-card__arrow" aria-hidden="true">
+                    <Icon name="arrow-up-right" size={15} />
+                  </span>
+                </a>
+                <div class="project-card__body">
+                  <div class="project-card__head">
+                    <h3>{p.title}</h3>
+                    <span class="project-card__year tnum">{p.year}</span>
+                  </div>
+                  <p class="project-card__desc">{p.description}</p>
+                  <div class="project-card__tags">
+                    {p.tags.slice(0, 3).map((t) => <span class="chip">{t}</span>)}
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      ) : (
+        <Reveal>
+          <div class="glass placeholder-note">
+            <Icon name="sparkles" size={18} />
+            <p>
+              Projects will appear here once you add them to{' '}
+              <code>site.projects</code> in <code>src/config/site.ts</code> — mark one as{' '}
+              <b>Featured</b> to feature it on the home page.
+            </p>
+          </div>
+        </Reveal>
+      )
+    }
+  </section>
+
+  <!-- ───────────── About teaser ───────────── -->
+  <section class="section container">
+    <div class="about-teaser glass">
+      <Reveal as="scale" class="about-teaser__avatar">
+        <Avatar size={104} />
+      </Reveal>
+      <div class="about-teaser__body">
+        <Reveal>
+          <p class="eyebrow">02 · A little about me</p>
+        </Reveal>
+        <Reveal delay={70}>
+          <p class="about-teaser__text">
+            {site.bioLong[0] === '[BIO_PARAGRAPH_1]'
+              ? 'I care about the space between pixels and the milliseconds between clicks — how software feels as much as how it works. This site is a small telescope pointed at my own orbit: the work I ship, the stats I keep, and the sky I look at when I step away from the keyboard.'
+              : site.bioLong[0]}
+          </p>
+        </Reveal>
+        <Reveal delay={140}>
+          <div class="about-teaser__actions">
+            <a class="link-arrow" href="/about">
+              More about me
+              <Icon name="arrow-right" size={15} />
+            </a>
+            <a class="link-arrow" href="/stats">
+              My stats &amp; life in numbers
+              <Icon name="arrow-right" size={15} />
+            </a>
+          </div>
+        </Reveal>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── Quick stats ───────────── -->
+  <section class="section container">
+    <div class="quick-stats">
+      <Reveal class="quick-stat glass">
+        <span class="quick-stat__value">
+          <span data-counter={site.stats.yearsExperience} data-suffix="+">0</span>
+        </span>
+        <span class="quick-stat__label">Years of experience</span>
+      </Reveal>
+      <Reveal delay={80} class="quick-stat glass">
+        <span class="quick-stat__value">
+          <span data-counter={projectsCount}>0</span>
+        </span>
+        <span class="quick-stat__label">Projects built &amp; shipped</span>
+      </Reveal>
+      <Reveal delay={160} class="quick-stat glass">
+        <span class="quick-stat__value">
+          <span data-counter={site.stats.technologies} data-suffix="+">0</span>
+        </span>
+        <span class="quick-stat__label">Technologies explored</span>
+      </Reveal>
+      <Reveal delay={240} class="quick-stat glass">
+        <span class="quick-stat__value">
+          <span data-counter={site.stats.cupsOfTeaPerDay}>0</span>
+        </span>
+        <span class="quick-stat__label">Cups of tea per day <span class="quick-stat__note">(essential)</span></span>
+      </Reveal>
+    </div>
+  </section>
+
+  <!-- ───────────── CTA ───────────── -->
+  <section class="section container">
+    <Reveal as="scale">
+      <div class="cta-banner glass">
+        <div class="cta-banner__glow" aria-hidden="true"></div>
+        <h2>
+          Have an idea orbiting <span class="font-serif grad-text">your head?</span>
+        </h2>
+        <p>Let's bring it into orbit. I'd love to hear what you're building.</p>
+        <a class="btn btn--primary" href="/contact">
+          Start a conversation
+          <svg class="arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </Reveal>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ───────────── Hero ───────────── */
+
+  .hero {
+    position: relative;
+    min-height: calc(100svh - var(--header-h) - 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 24px;
+    padding-bottom: 40px;
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    align-items: center;
+    gap: clamp(24px, 4vw, 48px);
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: 20px;
+    justify-items: start;
+  }
+
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 15px;
+    border-radius: var(--r-pill);
+    font-size: 0.82rem;
+    font-weight: 540;
+    color: var(--text-2);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border-2);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .hero-pill__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: pulse-dot 2.4s var(--ease-out) infinite;
+  }
+
+  @keyframes pulse-dot {
+    0% {
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 8px rgba(52, 211, 153, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+    }
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 6.4vw, 4.4rem);
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+  }
+
+  .hero-title .font-serif {
+    font-size: 1.06em;
+    padding-right: 0.06em;
+  }
+
+  .hero-tag {
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .hero-tag .font-serif {
+    font-size: 1.12em;
+    color: var(--text-1);
+  }
+
+  .hero-bio {
+    max-width: 52ch;
+    color: var(--text-2);
+    font-size: 1.02rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-3);
+    font-size: 0.88rem;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta__item b {
+    color: var(--text-1);
+    font-weight: 620;
+    font-size: 1rem;
+  }
+
+  .hero-meta__sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-3);
+    opacity: 0.7;
+  }
+
+  /* hero load animation */
+  [data-hero] {
+    opacity: 0;
+    animation: hero-in 0.9s var(--ease-out) both;
+  }
+
+  [data-hero-1] {
+    animation-delay: 0.08s;
+  }
+  [data-hero-2] {
+    animation-delay: 0.18s;
+  }
+  [data-hero-3] {
+    animation-delay: 0.28s;
+  }
+  [data-hero-4] {
+    animation-delay: 0.38s;
+  }
+  [data-hero-5] {
+    animation-delay: 0.48s;
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    padding: 8px;
+    opacity: 0.75;
+    animation: hero-in 1s var(--ease-out) 0.9s both;
+  }
+
+  .hero-scroll__mouse {
+    width: 22px;
+    height: 34px;
+    border-radius: 12px;
+    border: 1.6px solid var(--text-3);
+    display: grid;
+    place-items: start center;
+    padding-top: 6px;
+  }
+
+  .hero-scroll__mouse i {
+    width: 3px;
+    height: 7px;
+    border-radius: 3px;
+    background: var(--text-3);
+    animation: wheel 1.8s ease-in-out infinite;
+  }
+
+  @keyframes wheel {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    70% {
+      transform: translateY(9px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+  }
+
+  /* ───────────── Section top row ───────────── */
+
+  .section-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* ───────────── Project cards ───────────── */
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+
+  .project-card {
+    overflow: hidden;
+    display: grid;
+    gap: 0;
+  }
+
+  .project-card__cover {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 200px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 140% at 15% 0%, color-mix(in srgb, var(--c1) 42%, transparent), transparent 55%),
+      radial-gradient(120% 130% at 100% 100%, color-mix(in srgb, var(--c2) 40%, transparent), transparent 55%),
+      linear-gradient(150deg, color-mix(in srgb, var(--c1) 22%, var(--bg)), color-mix(in srgb, var(--c2) 20%, var(--bg)));
+  }
+
+  .project-card__cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(1.2px 1.2px at 20px 30px, rgba(255, 255, 255, 0.5), transparent 100%), radial-gradient(1px 1px at 120px 90px, rgba(255, 255, 255, 0.4), transparent 100%), radial-gradient(1.4px 1.4px at 200px 140px, rgba(255, 255, 255, 0.45), transparent 100%);
+    background-size: 240px 240px;
+    opacity: 0.5;
+    transition: opacity var(--dur-med) ease;
+  }
+
+  .project-card__glyph {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 4.6rem;
+    line-height: 1;
+    color: var(--text-1);
+    opacity: 0.9;
+    text-shadow: 0 10px 40px color-mix(in srgb, var(--c1) 45%, transparent);
+    transition: transform 0.5s var(--ease-spring);
+  }
+
+  .project-card:hover .project-card__glyph {
+    transform: translateY(-6px) rotate(-4deg) scale(1.06);
+  }
+
+  .project-card__status {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--glass-bg-3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .project-card__arrow {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--glass-bg-3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transform: translateY(6px);
+    opacity: 0;
+    transition: transform var(--dur-med) var(--ease-out), opacity var(--dur-med) ease;
+  }
+
+  .project-card:hover .project-card__arrow {
+    transform: none;
+    opacity: 1;
+  }
+
+  .project-card__body {
+    padding: 20px 22px 22px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .project-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .project-card__head h3 {
+    font-size: 1.12rem;
+  }
+
+  .project-card__year {
+    font-size: 0.8rem;
+    color: var(--text-3);
+  }
+
+  .project-card__desc {
+    font-size: 0.92rem;
+    color: var(--text-2);
+  }
+
+  .project-card__tags {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .placeholder-note {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 26px 30px;
+    color: var(--text-2);
+    font-size: 0.94rem;
+  }
+
+  .placeholder-note svg {
+    color: var(--accent);
+    flex: none;
+  }
+
+  .placeholder-note code {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  /* ───────────── About teaser ───────────── */
+
+  .about-teaser {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(20px, 3.4vw, 36px);
+    align-items: center;
+    padding: clamp(26px, 4vw, 44px);
+  }
+
+  .about-teaser__body {
+    display: grid;
+    gap: 14px;
+  }
+
+  .about-teaser__text {
+    color: var(--text-2);
+    font-size: 1.04rem;
+    line-height: 1.75;
+    max-width: 64ch;
+  }
+
+  .about-teaser__actions {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  /* ───────────── Quick stats ───────────── */
+
+  .quick-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .quick-stat {
+    padding: 24px 20px;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+
+  .quick-stat__value {
+    font-size: 2.1rem;
+    font-weight: 640;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .quick-stat__label {
+    font-size: 0.86rem;
+    color: var(--text-2);
+    font-weight: 520;
+  }
+
+  .quick-stat__note {
+    color: var(--text-3);
+    font-weight: 400;
+    font-size: 0.78rem;
+  }
+
+  /* ───────────── CTA banner ───────────── */
+
+  .cta-banner {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(36px, 6vw, 64px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+    position: relative;
+  }
+
+  .cta-banner p {
+    color: var(--text-2);
+    position: relative;
+  }
+
+  .cta-banner .btn {
+    margin-top: 8px;
+    position: relative;
+  }
+
+  .cta-banner__glow {
+    position: absolute;
+    inset: -40% -20%;
+    background:
+      radial-gradient(46% 60% at 30% 20%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+      radial-gradient(42% 55% at 75% 80%, color-mix(in srgb, var(--accent-3) 20%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ───────────── Responsive ───────────── */
+
+  @media (max-width: 920px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .hero__visual {
+      order: 2;
+      justify-self: center;
+    }
+
+    .hero__copy {
+      justify-items: start;
+    }
+
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero-scroll {
+      display: none;
+    }
+
+    .about-teaser {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+
+    .quick-stats {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .quick-stat {
+      padding: 18px 16px;
+    }
+
+    .quick-stat__value {
+      font-size: 1.7rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-hero] {
+      animation: none;
+      opacity: 1;
+    }
+
+    .hero-pill__dot,
+    .hero-scroll__mouse i {
+      animation: none;
+    }
+  }
+</style>

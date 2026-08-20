@@ -1,0 +1,423 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import Avatar from '../components/Avatar.astro';
+import { site, socialLinks } from '../config/site';
+
+const bioLong = site.bioLong;
+const hasBio = bioLong[0] !== '[BIO_PARAGRAPH_1]';
+const socialIcons: Record<string, string> = {
+  github: 'github',
+  twitter: 'twitter',
+  linkedin: 'linkedin',
+  mastodon: 'mastodon',
+};
+const socials = socialLinks.map((s) => ({
+  label: s.label.charAt(0).toUpperCase() + s.label.slice(1),
+  icon: socialIcons[s.label] ?? 'external',
+  href: s.href,
+}));
+---
+
+<BaseLayout title="About" active="/about">
+  <section class="container page-head">
+    <Reveal>
+      <p class="eyebrow">About</p>
+    </Reveal>
+    <Reveal delay={70}>
+      <h1>
+        The person behind <span class="font-serif grad-text">the pixels</span>
+      </h1>
+    </Reveal>
+    <Reveal delay={140}>
+      <p class="lead">
+        A short orbit around who I am, what I care about, and what I'm currently
+        pointing my curiosity at.
+      </p>
+    </Reveal>
+  </section>
+
+  <section class="section container about-grid">
+    <div class="about-main">
+      <Reveal>
+        <div class="glass about-card">
+          <div class="about-card__top">
+            <Avatar size={92} />
+            <div class="about-card__id">
+              <h2>{site.name}</h2>
+              <p>{site.tagline}</p>
+              <div class="about-card__chips">
+                {site.location !== '[LOCATION]' && (
+                  <span class="chip">
+                    <Icon name="pin" size={12} />
+                    {site.location}
+                  </span>
+                )}
+                {site.availability && (
+                  <span class="chip chip--accent">
+                    <span class="about-dot" aria-hidden="true"></span>
+                    Open to work
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div class="about-card__actions">
+            {site.resumeUrl !== '[RESUME_URL]' && (
+              <a class="btn btn--primary btn--sm" href={site.resumeUrl} target="_blank" rel="noopener noreferrer">
+                <Icon name="download" size={14} />
+                Résumé
+              </a>
+            )}
+            <a class="btn btn--sm" href={`mailto:${site.email}`}>
+              <Icon name="mail" size={14} />
+              Email me
+            </a>
+            {socials.map((s) => (
+              <a class="btn btn--ghost btn--sm" href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
+                <Icon name={s.icon} size={14} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal delay={90}>
+        <div class="glass about-card bio-card">
+          <h3 class="bio-card__title">
+            <Icon name="sparkles" size={17} />
+            The long version
+          </h3>
+          {hasBio ? (
+            bioLong.map((p) => (
+              <p class="bio-card__p">{p}</p>
+            ))
+          ) : (
+            <>
+              <p class="bio-card__p">
+                Replace <code>bioLong</code> in <code>src/config/site.ts</code> with
+                two to four paragraphs about yourself — your path, your taste, the
+                problems you like solving. This placeholder text keeps the layout
+                honest until then.
+              </p>
+              <p class="bio-card__p">
+                A good bio paragraph reads like you're talking to a friend over
+                coffee: what you do, why you do it, and one or two things that make
+                you a little unusual. The site will take care of the rest.
+              </p>
+            </>
+          )}
+        </div>
+      </Reveal>
+    </div>
+
+    <aside class="about-side">
+      <Reveal delay={120}>
+        <div class="glass about-card">
+          <h3 class="bio-card__title">
+            <Icon name="clock" size={17} />
+            Currently
+          </h3>
+          <ul class="currently-list">
+            <li>
+              <span class="currently-list__icon">🛠</span>
+              <span><b>Building</b><br />{site.currently.building}</span>
+            </li>
+            <li>
+              <span class="currently-list__icon">📚</span>
+              <span><b>Learning</b><br />{site.currently.learning}</span>
+            </li>
+            <li>
+              <span class="currently-list__icon">📖</span>
+              <span><b>Reading</b><br />{site.currently.reading}</span>
+            </li>
+            <li>
+              <span class="currently-list__icon">🎧</span>
+              <span><b>Listening to</b><br />{site.currently.listening}</span>
+            </li>
+          </ul>
+        </div>
+      </Reveal>
+
+      <Reveal delay={180}>
+        <div class="glass about-card">
+          <h3 class="bio-card__title">
+            <Icon name="infinity" size={17} />
+            Principles
+          </h3>
+          <div class="values-list">
+            {site.values.map((v) => (
+              <div class="value-item">
+                <span class="value-item__glyph">{v.glyph}</span>
+                <span>
+                  <b>{v.title}</b>
+                  <small>{v.description}</small>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+    </aside>
+  </section>
+
+  <section class="section container">
+    <SectionHeading eyebrow="03 · Toolbox">
+      Things I <span class="font-serif grad-text">work with</span>
+    </SectionHeading>
+    <div class="skills-grid">
+      {site.skills.map((skill, i) => (
+        <Reveal delay={i * 70} class="skill-item glass">
+          <div class="skill-item__head">
+            <span>{skill.name}</span>
+            <span class="tnum">{skill.level}%</span>
+          </div>
+          <div class="skill-item__bar" aria-hidden="true">
+            <i style={`--w:${skill.level}%`}></i>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: 16px;
+    max-width: 760px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+
+  .about-main,
+  .about-side {
+    display: grid;
+    gap: 22px;
+  }
+
+  .about-card {
+    padding: clamp(22px, 3vw, 30px);
+    display: grid;
+    gap: 18px;
+  }
+
+  .about-card__top {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .about-card__id {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .about-card__id h2 {
+    font-size: 1.45rem;
+  }
+
+  .about-card__id p {
+    color: var(--text-2);
+    font-size: 0.95rem;
+  }
+
+  .about-card__chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+
+  .about-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+  }
+
+  .about-card__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .bio-card__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.02rem;
+    margin-bottom: 6px;
+  }
+
+  .bio-card__title svg {
+    color: var(--accent);
+  }
+
+  .bio-card__p {
+    color: var(--text-2);
+    margin-top: 14px;
+    line-height: 1.8;
+  }
+
+  .bio-card__p:first-of-type {
+    margin-top: 4px;
+  }
+
+  .bio-card code {
+    font-family: var(--font-sans);
+    font-size: 0.86rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  .currently-list {
+    display: grid;
+    gap: 4px;
+  }
+
+  .currently-list li {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    padding: 12px 10px;
+    border-radius: var(--r-md);
+    font-size: 0.9rem;
+    color: var(--text-2);
+    line-height: 1.55;
+    transition: background var(--dur-fast) ease;
+  }
+
+  .currently-list li:hover {
+    background: var(--glass-bg-2);
+  }
+
+  .currently-list b {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .currently-list__icon {
+    font-size: 1.05rem;
+    line-height: 1.4;
+    flex: none;
+  }
+
+  .values-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .value-item {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+  }
+
+  .value-item__glyph {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    background: var(--grad-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    font-size: 0.85rem;
+  }
+
+  .value-item b {
+    font-size: 0.94rem;
+    font-weight: 600;
+  }
+
+  .value-item small {
+    display: block;
+    color: var(--text-3);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    margin-top: 2px;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .skill-item {
+    padding: 18px 22px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .skill-item__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.94rem;
+    font-weight: 560;
+  }
+
+  .skill-item__head span:last-child {
+    color: var(--text-3);
+    font-size: 0.8rem;
+  }
+
+  .skill-item__bar {
+    height: 6px;
+    border-radius: 99px;
+    background: var(--skeleton);
+    overflow: hidden;
+  }
+
+  .skill-item__bar i {
+    display: block;
+    height: 100%;
+    width: var(--w);
+    border-radius: 99px;
+    background: var(--grad-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.2s var(--ease-out) 0.25s;
+  }
+
+  .skill-item.revealed .skill-item__bar i {
+    transform: scaleX(1);
+  }
+
+  @media (max-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skill-item__bar i {
+      transform: scaleX(1);
+      transition: none;
+    }
+  }
+</style>

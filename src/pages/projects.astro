@@ -1,0 +1,395 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import { site } from '../config/site';
+import { pageUrl } from '../lib/paths';
+
+const statuses = ['All', ...new Set(site.projects.map((p) => p.status))];
+---
+
+<BaseLayout title="Projects" active="/projects">
+  <section class="container page-head">
+    <Reveal>
+      <p class="eyebrow">Projects</p>
+    </Reveal>
+    <Reveal delay={70}>
+      <h1>
+        Work that <span class="font-serif grad-text">left the pad</span>
+      </h1>
+    </Reveal>
+    <Reveal delay={140}>
+      <p class="lead">
+        A selection of things I've designed, built and shipped — from small
+        experiments to longer missions.
+      </p>
+    </Reveal>
+  </section>
+
+  <section class="section container">
+    <Reveal>
+      <div class="filter-bar glass" role="group" aria-label="Filter projects">
+        {statuses.map((s) => (
+          <button class="filter-chip" type="button" data-filter={s} aria-pressed={s === 'All'}>
+            {s}
+          </button>
+        ))}
+        <span class="filter-bar__count tnum" id="projects-count">{site.projects.length} shown</span>
+      </div>
+    </Reveal>
+
+    <div class="projects-grid" id="projects-grid">
+      {site.projects.map((p, i) => (
+        <Reveal delay={(i % 3) * 90} class="projects-grid__item" >
+          <article class="glass glass--hover project-card" data-status={p.status}>
+            <a
+              class="project-card__cover"
+              href={p.liveUrl !== '[LIVE_URL]' ? p.liveUrl : p.repoUrl !== '[REPO_URL]' ? p.repoUrl : pageUrl('/projects')}
+              target={p.liveUrl !== '[LIVE_URL]' ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              style={`--c1:${p.accent[0]};--c2:${p.accent[1]}`}
+              aria-label={`${p.title} — open project`}
+            >
+              <span class="project-card__glyph">{p.glyph}</span>
+              <span class="project-card__status chip">{p.status}</span>
+              <span class="project-card__arrow" aria-hidden="true">
+                <Icon name="arrow-up-right" size={15} />
+              </span>
+            </a>
+            <div class="project-card__body">
+              <div class="project-card__head">
+                <h3>{p.title}</h3>
+                <span class="project-card__year tnum">{p.year}</span>
+              </div>
+              <p class="project-card__desc">{p.description}</p>
+              {p.highlights.length > 0 && p.highlights[0] !== '[HIGHLIGHT_1]' && (
+                <ul class="project-card__highlights">
+                  {p.highlights.map((h) => <li>{h}</li>)}
+                </ul>
+              )}
+              <div class="project-card__tags">
+                {p.tags.map((t) => <span class="chip">{t}</span>)}
+              </div>
+              <div class="project-card__links">
+                {p.liveUrl !== '[LIVE_URL]' && (
+                  <a class="link-arrow" href={p.liveUrl} target="_blank" rel="noopener noreferrer">
+                    Live site
+                    <Icon name="arrow-up-right" size={13} />
+                  </a>
+                )}
+                {p.repoUrl !== '[REPO_URL]' && (
+                  <a class="link-arrow" href={p.repoUrl} target="_blank" rel="noopener noreferrer">
+                    <Icon name="github" size={13} />
+                    Source
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        </Reveal>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <Reveal as="scale">
+      <div class="cta-banner glass">
+        <div class="cta-banner__glow" aria-hidden="true"></div>
+        <h2>
+          More code lives <span class="font-serif grad-text">on GitHub</span>
+        </h2>
+        <p>Stars, contributions and recent activity — all live, all real.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;position:relative">
+          <a class="btn btn--primary" href={pageUrl('/stats')}>
+            <Icon name="github" size={15} />
+            See my GitHub stats
+          </a>
+          <a class="btn btn--ghost" href={site.socials.github} target="_blank" rel="noopener noreferrer">
+            Open GitHub
+            <Icon name="external" size={13} />
+          </a>
+        </div>
+      </div>
+    </Reveal>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: 16px;
+    max-width: 760px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: var(--r-pill);
+    width: fit-content;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    padding: 7px 16px;
+    border-radius: var(--r-pill);
+    font-size: 0.86rem;
+    font-weight: 540;
+    color: var(--text-2);
+    transition: color var(--dur-fast) ease, background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+  }
+
+  .filter-chip:hover {
+    color: var(--text-1);
+  }
+
+  .filter-chip[aria-pressed='true'] {
+    color: var(--on-accent);
+    background: var(--grad-accent);
+    box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .filter-bar__count {
+    margin-left: auto;
+    padding-inline: 12px;
+    font-size: 0.78rem;
+    color: var(--text-3);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 30px;
+  }
+
+  .project-card {
+    overflow: hidden;
+    display: grid;
+    gap: 0;
+    height: 100%;
+  }
+
+  .project-card[hidden] {
+    display: none;
+  }
+
+  .project-card__cover {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 170px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 140% at 15% 0%, color-mix(in srgb, var(--c1) 42%, transparent), transparent 55%),
+      radial-gradient(120% 130% at 100% 100%, color-mix(in srgb, var(--c2) 40%, transparent), transparent 55%),
+      linear-gradient(150deg, color-mix(in srgb, var(--c1) 22%, var(--bg)), color-mix(in srgb, var(--c2) 20%, var(--bg)));
+  }
+
+  .project-card__cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(1.2px 1.2px at 20px 30px, rgba(255, 255, 255, 0.5), transparent 100%), radial-gradient(1px 1px at 120px 90px, rgba(255, 255, 255, 0.4), transparent 100%), radial-gradient(1.4px 1.4px at 200px 140px, rgba(255, 255, 255, 0.45), transparent 100%);
+    background-size: 240px 240px;
+    opacity: 0.5;
+  }
+
+  .project-card__glyph {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 3.8rem;
+    line-height: 1;
+    color: var(--text-1);
+    opacity: 0.9;
+    text-shadow: 0 10px 40px color-mix(in srgb, var(--c1) 45%, transparent);
+    transition: transform 0.5s var(--ease-spring);
+  }
+
+  .project-card:hover .project-card__glyph {
+    transform: translateY(-6px) rotate(-4deg) scale(1.06);
+  }
+
+  .project-card__status {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--glass-bg-3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .project-card__arrow {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--glass-bg-3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    transform: translateY(6px);
+    opacity: 0;
+    transition: transform var(--dur-med) var(--ease-out), opacity var(--dur-med) ease;
+  }
+
+  .project-card:hover .project-card__arrow {
+    transform: none;
+    opacity: 1;
+  }
+
+  .project-card__body {
+    padding: 18px 20px 20px;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+
+  .project-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .project-card__head h3 {
+    font-size: 1.06rem;
+  }
+
+  .project-card__year {
+    font-size: 0.78rem;
+    color: var(--text-3);
+  }
+
+  .project-card__desc {
+    font-size: 0.9rem;
+    color: var(--text-2);
+  }
+
+  .project-card__highlights {
+    display: grid;
+    gap: 5px;
+    margin: 2px 0;
+  }
+
+  .project-card__highlights li {
+    font-size: 0.84rem;
+    color: var(--text-2);
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .project-card__highlights li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    font-size: 0.6rem;
+    top: 2px;
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .project-card__tags {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .project-card__links {
+    display: flex;
+    gap: 18px;
+    margin-top: 6px;
+  }
+
+  .cta-banner {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(34px, 5vw, 56px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    position: relative;
+  }
+
+  .cta-banner p {
+    color: var(--text-2);
+    position: relative;
+  }
+
+  .cta-banner__glow {
+    position: absolute;
+    inset: -40% -20%;
+    background:
+      radial-gradient(46% 60% at 30% 20%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+      radial-gradient(42% 55% at 75% 80%, color-mix(in srgb, var(--accent-3) 20%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 1000px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-bar {
+      width: 100%;
+      border-radius: var(--r-lg);
+    }
+
+    .filter-bar__count {
+      width: 100%;
+      text-align: right;
+    }
+  }
+</style>
+
+<script>
+  let currentFilter = 'All';
+
+  const applyFilter = (filter: string) => {
+    currentFilter = filter;
+    const grid = document.getElementById('projects-grid');
+    const chips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
+    const count = document.getElementById('projects-count');
+    let visible = 0;
+    grid?.querySelectorAll<HTMLElement>('.project-card').forEach((card) => {
+      const match = filter === 'All' || card.dataset.status === filter;
+      card.hidden = !match;
+      if (match) visible++;
+    });
+    if (count) count.textContent = `${visible} shown`;
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.filter === filter)));
+  };
+
+  // Re-init after view-transition swaps (scripts don't re-run on navigation).
+  document.addEventListener('astro:page-load', () => {
+    applyFilter(currentFilter);
+    document.querySelectorAll<HTMLButtonElement>('.filter-chip').forEach((chip) =>
+      chip.addEventListener('click', () => applyFilter(chip.dataset.filter ?? 'All')),
+    );
+  });
+</script>

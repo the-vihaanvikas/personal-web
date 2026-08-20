@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Reveal from '../components/Reveal.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import GitHubStats from '../components/GitHubStats.astro';
+import LifeStats from '../components/LifeStats.astro';
+import { site, hasGithubUsername, hasBirthDate } from '../config/site';
+---
+
+<BaseLayout title="Stats & Life" active="/stats">
+  <section class="container page-head">
+    <Reveal>
+      <p class="eyebrow">Stats &amp; Life</p>
+    </Reveal>
+    <Reveal delay={70}>
+      <h1>
+        My life, in <span class="font-serif grad-text">numbers &amp; orbits</span>
+      </h1>
+    </Reveal>
+    <Reveal delay={140}>
+      <p class="lead">
+        Live GitHub data on one side — and on the other, a real astronomical
+        audit of the time between your birth and now. No heartbeats, no
+        breaths. Just stars.
+      </p>
+    </Reveal>
+  </section>
+
+  <!-- ───────────── GitHub ───────────── -->
+  <section class="section container">
+    <SectionHeading eyebrow="01 · Live from GitHub" lead={hasGithubUsername ? `Every number below is fetched live from ${site.github.username}'s public GitHub profile — stars, repos, events and contributions.` : 'Connect your GitHub username and this section comes alive with live data.'}>
+      Open source <span class="font-serif grad-text">footprint</span>
+    </SectionHeading>
+    <Reveal>
+      <GitHubStats />
+    </Reveal>
+  </section>
+
+  <!-- ───────────── Life ───────────── -->
+  <section class="section container">
+    <SectionHeading eyebrow="02 · Celestial audit" lead={hasBirthDate ? 'Computed with real ephemeris data from the moment you were born — cached locally so it only calculates once.' : 'Set your birth date in src/config/site.ts and watch the cosmos get personal.'}>
+      Life, measured by <span class="font-serif grad-text">the cosmos</span>
+    </SectionHeading>
+    <Reveal>
+      <LifeStats />
+    </Reveal>
+  </section>
+
+  <section class="section container">
+    <div class="how-grid">
+      <Reveal class="how-card glass">
+        <span class="how-card__icon"><Icon name="github" size={17} /></span>
+        <h3>How GitHub stats work</h3>
+        <p>
+          Data comes straight from the public GitHub REST API, cached for 20
+          minutes. Set <code>github.username</code> in{' '}
+          <code>src/config/site.ts</code>. For the contribution heatmap, total
+          contributions and streaks, add a{' '}
+          <code>PUBLIC_GITHUB_TOKEN</code> to <code>.env</code> (fine-grained,
+          read-only) — the site then uses GitHub's GraphQL API.
+        </p>
+      </Reveal>
+      <Reveal delay={90} class="how-card glass">
+        <span class="how-card__icon"><Icon name="orbit" size={17} /></span>
+        <h3>How life stats work</h3>
+        <p>
+          Everything is computed in your browser with{' '}
+          <code>astronomy-engine</code> — the same ephemeris math used in
+          planetarium software. Set <code>birth.date</code> in{' '}
+          <code>src/config/site.ts</code> as an ISO date with UTC offset (the
+          offset matters: it decides which moon you were born under).
+        </p>
+      </Reveal>
+      <Reveal delay={180} class="how-card glass">
+        <span class="how-card__icon"><Icon name="heart" size={17} /></span>
+        <h3>Privacy &amp; performance</h3>
+        <p>
+          No analytics, no trackers, no server. All computation happens on
+          your device and results stay in your browser's local storage. The
+          heavy astronomy work is cached for 6 hours, so the page stays fast
+          on every visit.
+        </p>
+      </Reveal>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: 16px;
+    max-width: 800px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .how-card {
+    padding: 24px;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  .how-card__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    background: var(--grad-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    margin-bottom: 4px;
+  }
+
+  .how-card h3 {
+    font-size: 1.02rem;
+  }
+
+  .how-card p {
+    color: var(--text-2);
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .how-card code {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border-2);
+  }
+
+  @media (max-width: 900px) {
+    .how-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,109 @@
+---
+/**
+ * Theme switcher. State lives on <html data-theme>, persisted to localStorage.
+ * Works without any framework; safe across view transitions.
+ */
+---
+
+<button
+  id="theme-toggle"
+  class="theme-toggle"
+  type="button"
+  aria-label="Toggle colour theme"
+  title="Toggle colour theme"
+>
+  <span class="theme-toggle__icon" aria-hidden="true">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4.4" />
+      <path d="M12 2.5v2.2M12 19.3v2.2M4.7 4.7l1.6 1.6M17.7 17.7l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.7 19.3l1.6-1.6M17.7 6.3l1.6-1.6" />
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  </span>
+</button>
+
+<style>
+  .theme-toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--text-2);
+    background: var(--glass-bg-2);
+    border: 1px solid var(--glass-border-2);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--text-1);
+    border-color: var(--glass-border);
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle:active {
+    transform: scale(0.94);
+  }
+
+  .theme-toggle__icon {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+  }
+
+  .theme-toggle__icon svg {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    transition:
+      transform 0.45s var(--ease-spring),
+      opacity 0.3s ease;
+  }
+
+  :root[data-theme='light'] .icon-moon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.4);
+  }
+
+  :root[data-theme='dark'] .icon-sun {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.4);
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function currentTheme(): 'light' | 'dark' {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return media.matches ? 'dark' : 'light';
+  }
+
+  function apply(theme: 'light' | 'dark') {
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+  }
+
+  toggle?.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    apply(next);
+  });
+
+  media.addEventListener('change', () => {
+    if (!localStorage.getItem('theme')) apply(currentTheme());
+  });
+
+  document.addEventListener('astro:page-load', () => apply(currentTheme()));
+</script>

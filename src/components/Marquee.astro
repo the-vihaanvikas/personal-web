@@ -1,0 +1,31 @@
+---
+import { site } from '../config/site';
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    {[0, 1].map((dup) => (
+      <div class="marquee__group">
+        {site.marquee.map((item) => <span class="marquee__item">{item}</span>)}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee {
+    margin-block: clamp(28px, 4vw, 48px);
+  }
+
+  .marquee__track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+  }
+
+  .marquee__group {
+    display: flex;
+    gap: 14px;
+    padding-right: 14px;
+  }
+</style>

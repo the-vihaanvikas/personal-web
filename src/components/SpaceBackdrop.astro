@@ -1,0 +1,16 @@
+---
+/**
+ * Fixed cosmic backdrop: aurora colour fields + twinkling starfield.
+ * Persists across view transitions so pages feel like one continuous space.
+ */
+---
+
+<div class="space-bg" data-astro-transition-persist="space-bg" aria-hidden="true">
+  <div class="aurora">
+    <div class="blob"></div>
+  </div>
+  <div class="stars s1"></div>
+  <div class="stars s2"></div>
+  <div class="stars s3"></div>
+</div>
+<div class="noise" aria-hidden="true"></div>

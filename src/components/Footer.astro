@@ -1,0 +1,211 @@
+---
+import { site, socialLinks } from '../config/site';
+import { pageUrl } from '../lib/paths';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+
+const socialIcons: Record<string, string> = {
+  github: 'github',
+  twitter: 'twitter',
+  linkedin: 'linkedin',
+  mastodon: 'mastodon',
+};
+
+const socials = socialLinks.map((s) => ({
+  label: s.label.charAt(0).toUpperCase() + s.label.slice(1),
+  icon: socialIcons[s.label] ?? 'external',
+  href: s.href,
+}));
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid glass">
+      <div class="footer-brand">
+        <span class="brand__orb" aria-hidden="true"></span>
+        <p class="footer-name">{site.name}</p>
+        <p class="footer-tag">{site.tagline}</p>
+      </div>
+
+      <nav class="footer-col" aria-label="Site">
+        <p class="footer-heading">Explore</p>
+        <a href={pageUrl('/')}>Home</a>
+        <a href={pageUrl('/about')}>About</a>
+        <a href={pageUrl('/projects')}>Projects</a>
+        <a href={pageUrl('/experience')}>Experience</a>
+        <a href={pageUrl('/stats')}>Stats</a>
+        <a href={pageUrl('/contact')}>Contact</a>
+      </nav>
+
+      <div class="footer-col">
+        <p class="footer-heading">Connect</p>
+        {socials.map((s) => (
+          <a href={s.href} target="_blank" rel="noopener noreferrer">
+            <Icon name={s.icon} size={15} />
+            {s.label}
+          </a>
+        ))}
+        <a href={`mailto:${site.email}`}>
+          <Icon name="mail" size={15} />
+          Email
+        </a>
+      </div>
+
+      <div class="footer-col footer-col--cta">
+        <p class="footer-heading">Say hello</p>
+        <a class="footer-mail" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+        <p class="footer-loc">
+          <Icon name="pin" size={14} />
+          {site.location}
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {site.name}. Crafted with care.</p>
+      <p class="footer-built">
+        <span class="footer-star" aria-hidden="true">✦</span>
+        Built among the stars — Astro &amp; zero templates
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(80px, 12vw, 140px);
+    padding: 0 0 36px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+    gap: 34px;
+    padding: clamp(28px, 4vw, 44px);
+    border-radius: var(--r-xl);
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .brand__orb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+    background: radial-gradient(circle at 32% 30%, #fff, var(--accent) 38%, var(--accent-2) 78%);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+
+  .footer-name {
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    font-size: 1.05rem;
+  }
+
+  .footer-tag {
+    font-size: 0.88rem;
+    color: var(--text-3);
+    max-width: 26ch;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .footer-col a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-2);
+    width: fit-content;
+    transition: color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+  }
+
+  .footer-col a:hover {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  .footer-heading {
+    font-size: 0.7rem;
+    font-weight: 620;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .footer-col--cta {
+    gap: 12px;
+  }
+
+  .footer-mail {
+    font-weight: 580;
+    color: var(--accent) !important;
+    word-break: break-all;
+  }
+
+  .footer-loc {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--text-3);
+    font-size: 0.86rem;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 22px 8px 0;
+    font-size: 0.82rem;
+    color: var(--text-3);
+  }
+
+  .footer-built {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .footer-star {
+    background: var(--grad-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 26px;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

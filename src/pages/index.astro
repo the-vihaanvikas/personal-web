@@ -7,6 +7,7 @@ import OrbitVisual from '../components/OrbitVisual.astro';
 import Marquee from '../components/Marquee.astro';
 import Avatar from '../components/Avatar.astro';
 import { site } from '../config/site';
+import { pageUrl } from '../lib/paths';
 
 const featured = site.projects.filter((p) => p.status === 'Featured').slice(0, 2);
 const hasFeatured = featured.length > 0;
@@ -41,11 +42,11 @@ const projectsCount = site.projects.length;
         </p>
 
         <div class="hero-cta" data-hero data-hero-4>
-          <a class="btn btn--primary" href="/projects">
+          <a class="btn btn--primary" href={pageUrl('/projects')}>
             View my work
             <svg class="arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>
           </a>
-          <a class="btn" href="/contact">Get in touch</a>
+          <a class="btn" href={pageUrl('/contact')}>Get in touch</a>
           <a class="btn btn--ghost" href={site.socials.github} target="_blank" rel="noopener noreferrer">
             <Icon name="github" size={15} />
             GitHub
@@ -88,7 +89,7 @@ const projectsCount = site.projects.length;
         Things I've <span class="font-serif grad-text">built</span>
       </SectionHeading>
       <Reveal delay={140}>
-        <a class="link-arrow" href="/projects">
+        <a class="link-arrow" href={pageUrl('/projects')}>
           All projects
           <Icon name="arrow-right" size={15} />
         </a>
@@ -103,7 +104,7 @@ const projectsCount = site.projects.length;
               <article class="glass glass--hover project-card">
                 <a
                   class="project-card__cover"
-                  href={p.liveUrl !== '[LIVE_URL]' ? p.liveUrl : p.repoUrl !== '[REPO_URL]' ? p.repoUrl : '/projects'}
+                  href={p.liveUrl !== '[LIVE_URL]' ? p.liveUrl : p.repoUrl !== '[REPO_URL]' ? p.repoUrl : pageUrl('/projects')}
                   target={p.liveUrl !== '[LIVE_URL]' ? '_blank' : undefined}
                   rel="noopener noreferrer"
                   style={`--c1:${p.accent[0]};--c2:${p.accent[1]}`}
@@ -163,11 +164,11 @@ const projectsCount = site.projects.length;
         </Reveal>
         <Reveal delay={140}>
           <div class="about-teaser__actions">
-            <a class="link-arrow" href="/about">
+            <a class="link-arrow" href={pageUrl('/about')}>
               More about me
               <Icon name="arrow-right" size={15} />
             </a>
-            <a class="link-arrow" href="/stats">
+            <a class="link-arrow" href={pageUrl('/stats')}>
               My stats &amp; life in numbers
               <Icon name="arrow-right" size={15} />
             </a>
@@ -216,7 +217,7 @@ const projectsCount = site.projects.length;
           Have an idea orbiting <span class="font-serif grad-text">your head?</span>
         </h2>
         <p>Let's bring it into orbit. I'd love to hear what you're building.</p>
-        <a class="btn btn--primary" href="/contact">
+        <a class="btn btn--primary" href={pageUrl('/contact')}>
           Start a conversation
           <svg class="arrow" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>
         </a>

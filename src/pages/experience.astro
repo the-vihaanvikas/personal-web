@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import Reveal from '../components/Reveal.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import { site } from '../config/site';
+import { pageUrl } from '../lib/paths';
 
 const hasExperience = site.experience[0].role !== '[ROLE]';
 const hasEducation = site.education[0].school !== '[SCHOOL / UNIVERSITY]';
@@ -124,7 +125,7 @@ const hasEducation = site.education[0].school !== '[SCHOOL / UNIVERSITY]';
               Download résumé
             </a>
           )}
-          <a class="btn btn--ghost" href="/contact">Or just say hi</a>
+          <a class="btn btn--ghost" href={pageUrl('/contact')}>Or just say hi</a>
         </div>
       </div>
     </Reveal>

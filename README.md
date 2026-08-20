@@ -117,9 +117,29 @@ npm run check      # astro check (TS + a11y hints)
 
 ## Deploy
 
-Any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages…). Set
-`site` in `astro.config.mjs` to your production URL, and add
-`PUBLIC_GITHUB_TOKEN` as an environment variable if you want the heatmap.
+**GitHub Pages (included):** a ready-made workflow (`.github/workflows/deploy-pages.yml`)
+builds the site and deploys it to `https://the-vihaanvikas.github.io/personal-web/`.
+One-time setup in the repo settings:
+
+1. **Settings → Pages → Build and deployment → Source → “GitHub Actions”**
+   (the site is currently configured for the legacy Jekyll build, which cannot
+   build an Astro project).
+2. Push to `main` — the workflow builds with Node 22 and deploys `dist/`.
+
+The Astro config bakes in the GitHub Pages subpath:
+
+```js
+// astro.config.mjs
+base: process.env.ASTRO_BASE ?? '/personal-web',
+```
+
+- `ASTRO_BASE='' npm run dev` — serve from the root (local dev / sandbox previews)
+- `ASTRO_BASE='/blog' npm run build` — any other subpath
+
+**Other hosts:** Netlify, Vercel, Cloudflare Pages… build command `npm run build`,
+output directory `dist`, and set `ASTRO_BASE=''` (or a subpath) as needed. Update
+`site` in `astro.config.mjs` to your production URL. Add `PUBLIC_GITHUB_TOKEN` as
+an environment variable if you want the contribution heatmap.
 
 ---
 

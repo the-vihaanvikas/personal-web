@@ -6,6 +6,7 @@ import '@fontsource/instrument-serif/400-italic.css';
 import { ClientRouter } from 'astro:transitions';
 
 import { site } from '../config/site';
+import { assetUrl } from '../lib/paths';
 import SpaceBackdrop from '../components/SpaceBackdrop.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -42,8 +43,8 @@ const pageTitle = `${title} · ${site.name}`;
     <meta property="og:site_name" content={site.name} />
     <meta name="twitter:card" content="summary" />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={assetUrl('/favicon.svg')} />
+    <link rel="preload" as="image" href={assetUrl('/favicon.svg')} />
 
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f7" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#05070f" />

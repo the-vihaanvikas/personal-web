@@ -1,5 +1,6 @@
 ---
 import { site, socialLinks } from '../config/site';
+import { pageUrl } from '../lib/paths';
 import Icon from './Icon.astro';
 
 const year = new Date().getFullYear();
@@ -29,12 +30,12 @@ const socials = socialLinks.map((s) => ({
 
       <nav class="footer-col" aria-label="Site">
         <p class="footer-heading">Explore</p>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/projects">Projects</a>
-        <a href="/experience">Experience</a>
-        <a href="/stats">Stats</a>
-        <a href="/contact">Contact</a>
+        <a href={pageUrl('/')}>Home</a>
+        <a href={pageUrl('/about')}>About</a>
+        <a href={pageUrl('/projects')}>Projects</a>
+        <a href={pageUrl('/experience')}>Experience</a>
+        <a href={pageUrl('/stats')}>Stats</a>
+        <a href={pageUrl('/contact')}>Contact</a>
       </nav>
 
       <div class="footer-col">

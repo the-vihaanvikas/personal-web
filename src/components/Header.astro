@@ -1,5 +1,6 @@
 ---
 import { site, isPlaceholderLink } from '../config/site';
+import { pageUrl } from '../lib/paths';
 import ThemeToggle from './ThemeToggle.astro';
 import Icon from './Icon.astro';
 
@@ -10,19 +11,19 @@ interface Props {
 const { active = '' } = Astro.props;
 
 const nav = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/experience', label: 'Experience' },
-  { href: '/stats', label: 'Stats' },
-  { href: '/contact', label: 'Contact' },
+  { href: pageUrl('/'), label: 'Home' },
+  { href: pageUrl('/about'), label: 'About' },
+  { href: pageUrl('/projects'), label: 'Projects' },
+  { href: pageUrl('/experience'), label: 'Experience' },
+  { href: pageUrl('/stats'), label: 'Stats' },
+  { href: pageUrl('/contact'), label: 'Contact' },
 ];
 ---
 
 <header id="site-header" class="site-header" transition:persist="site-header">
   <div class="container">
     <div class="nav-shell glass">
-      <a class="brand" href="/" aria-label="Home">
+      <a class="brand" href={pageUrl('/')} aria-label="Home">
         <span class="brand__orb" aria-hidden="true"></span>
         <span class="brand__name">{site.name}</span>
       </a>
